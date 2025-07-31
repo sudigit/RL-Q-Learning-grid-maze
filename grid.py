@@ -1,16 +1,25 @@
 import numpy as np
 import cv2 
+import time
 
-columns_no=6
-rows_no=6
+start_time = time.time()
+
+columns_no=8
+rows_no=8
 
 
 #initializing rewards
 rewards=np.full((rows_no, columns_no), -1)
 
-walls = [(1, 1), (2, 3), (3, 4), (4, 1)]
+walls = coordinates = [
+    (3, 7), (0, 4), (7, 1), (2, 2), (6, 5),
+    (5, 0), (7, 7), (1, 6), (4, 3), (3, 5),
+    (3, 1), (0, 0), (2, 7), (4, 5), (6, 4),
+    (1, 2), (5, 2), (3, 0), (4, 6), (7, 3)
+]
+
 for (x, y) in walls:
-    rewards[x][y] = -100    ##wall
+    rewards[x][y] = -50   ##wall
 
 rewards[4][3] = 100     #target box
 
@@ -101,16 +110,23 @@ def start(x,y):
       y=b[1]
     path.append((x,y))
 
+    if len(path)>100:
+      #print(path)
+      return path  
+
   return path
 
-for episode in range(0,150):
+for episode in range(0,500):
     x, y = get_starting()
     path = start(x, y)
 
     epsilon = max(0.1, epsilon * 0.995)
 
-    #if episode % 100 == 0:
-    #print(f"Episode {episode}, last path length: {len(path)}")
+
+mid_time = time.time()
+print("Training time:", mid_time - start_time, "seconds")
+    #if episode % 1 == 0:
+      #print(f"Episode {episode}, last path length: {len(path)}")
     #if rewards[path[-1][0]][path[-1][1]]==-100:
       #print(path)
       #print("wall")
@@ -129,6 +145,7 @@ for x in range(0,rows_no):
       if (x,y) in walls:
          continue
       
+      #print("1")
       path1=start(x,y)
       print(path1)
 
@@ -157,8 +174,9 @@ for x in range(0,rows_no):
           cv2.line(grid_image, pt1, pt2, color=(0, 0, 255), thickness=5)
 
       cv2.imshow("Path", grid_image)
-      cv2.waitKey(1000)
-
+      cv2.waitKey(500)
 
 
 cv2.destroyAllWindows()
+end_time = time.time()
+print("Total time:", end_time - start_time, "seconds")
